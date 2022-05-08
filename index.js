@@ -12,9 +12,21 @@ const app = express();
 
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors());
+
+app.use(cors({
+	credentials: true,
+	origin: process.env.CLIENT_URL
+}));
 app.use('/api', router);
 app.use(errorMiddleware);
+
+//? выгрузка index.html для всех запросов на хосте
+if (process.env.NODE_ENV === 'production') {
+	app.use(express.static(path.join(__dirname, 'public')));
+	app.get('*', (req, res) => {
+		res.sendFile(path.resolve(__dirname, 'public', 'index.html'));
+	});
+}
 
 const start = async () => {
 	try {
